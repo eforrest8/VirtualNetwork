@@ -11,8 +11,8 @@ public class RoutingTable {
      * If a destination node is known to the routing table,
      * retrieve the port associated with it.
      * @param destination The name of the node we are looking for.
-     * @return If found, the port associated with the given
-     * destination. Otherwise, an empty Optional.
+     * @return If found, an Optional containing the port associated
+     * with the given destination. Otherwise, an empty Optional.
      */
     public Optional<Integer> getPortForDestination(String destination) {
         return table.containsKey(destination) ? Optional.of(table.get(destination)) : Optional.empty();
