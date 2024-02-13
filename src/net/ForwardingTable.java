@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class RoutingTable {
+public class ForwardingTable {
     private final Map<String, Integer> table = new HashMap<>();
 
     /**
@@ -21,10 +21,10 @@ public class RoutingTable {
     /**
      * Update the routing table to associate a destination with a
      * particular port.
-     * @param destination The name of a node.
+     * @param source The name of a node.
      * @param port The port associated with the destination.
      */
-    public void updatePortMapping(String destination, Integer port) {
-        table.put(destination, port);
+    public void updatePortMapping(String source, Integer port) {
+        table.put(source, port);
     }
 }
