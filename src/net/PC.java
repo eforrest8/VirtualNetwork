@@ -12,16 +12,13 @@ import java.util.Scanner;
 public class PC {
     private int MAC;
     public static void main(String[] args) throws Exception {
-    //uses parser to read config
-
-    //we're expected to use threads so these can run concurrently
+        InetAddress serverIP = InetAddress.getByName(args[0]);
+        int serverPort = Integer.parseInt(args[1]);
 
         if(args.length != 2){
             System.out.println("Syntax: EchoClient <serverIP> <serverPort>");
             return;
         }
-        InetAddress serverIP = InetAddress.getByName(args[0]);
-        int serverPort = Integer.parseInt(args[1]);
 
         System.out.println("Type your message below.");
         Scanner keyboard = new Scanner(System.in);
@@ -36,6 +33,9 @@ public class PC {
         socket.send(request);
         socket.close();
 
+
+        //uses parser to read config
+        //we're expected to use threads so these can run concurrently
 
         //create virtual frame for udp payload
         //this will include source mac, message, dest mac
