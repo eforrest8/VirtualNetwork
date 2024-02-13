@@ -29,8 +29,8 @@ public class Switch {
                 clientRequest.getLength()
         );
 
-        String clientResponse = new String(clientMessage);
-        System.out.println(clientResponse);
+        String serverResponse = new String(clientMessage);
+        System.out.println(serverResponse);
         serverSocket.close();
     }
 }
