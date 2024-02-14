@@ -11,7 +11,7 @@ public class Parser {
 
     String config;
     List neighborList = new ArrayList();
-    List ipArray = new ArrayList();
+    List parsed = new ArrayList();
     //gets instantiated by pc/switch
 
     private String[] parseConfig(){
@@ -24,25 +24,29 @@ public class Parser {
         var initArray = config.split(";");
         return initArray;
     }
-    public List getNeighbors(String id){
+    public List getNeighbors(String id) {
         var initArray = parseConfig();
         var neighborArray = initArray[0].split("/");
-
+        var ipArray = initArray[1].split("/");
 
         for (String s : neighborArray) {
-            if(s.contains(id)) {
                 var n = s.split("=");
+                if (n[0].contains(id)){
                 neighborList.add(n[1]);
             }
         }
 
-        return neighborList;
-    }
+        System.out.println(neighborList);
 
-    public String[] getIP(){
-        var initArray = parseConfig();
-        var ipArray = initArray[1].split("/");
-        return ipArray;
+        for (Object x : neighborList) {
+            for (String s : ipArray){
+                if (s.contains(x.toString())){
+                    parsed.add(s);
+                }
+            }
+        }
+
+        return parsed;
     }
 
 }

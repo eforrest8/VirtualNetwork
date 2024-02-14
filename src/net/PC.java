@@ -14,14 +14,14 @@ import java.util.Scanner;
 public class PC {
     //needs to be able to send and receive UDP
     private int MAC;
-    private static String id = "A";
-    private static List neighbors = new ArrayList();
+    private static String id = "S1";
+    private static List neighbors;
     private static String[] ips;
     public static void main(String[] args) throws Exception {
 
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
-        ips = parser.getIP();
+        System.out.println(neighbors);
 
         InetAddress serverIP = InetAddress.getByName(args[0]);
         int serverPort = Integer.parseInt(args[1]);
