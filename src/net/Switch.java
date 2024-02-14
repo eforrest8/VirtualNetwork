@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Switch {
 
-    private static String id;
+    private static String id = "S1";
     private static Map neighbors;
 
     public static void main(String[] args) throws Exception {

@@ -15,7 +15,6 @@ public class PC {
     private static Map neighbors;
 
     public static void main(String[] args) throws Exception {
-
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
 

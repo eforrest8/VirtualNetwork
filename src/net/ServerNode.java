@@ -22,7 +22,6 @@ public class ServerNode {
         public void run() {
             DatagramSocket serverSocket;
 
-
             try {
                 serverSocket = new DatagramSocket(reception);
             } catch (SocketException e) {
@@ -100,5 +99,25 @@ public class ServerNode {
             sending.shutdown();
             receiving.shutdown();
         }
+    }
+
+    public static void main (String[] args) {
+        InetSocketAddress send;
+        try {
+            send = new InetSocketAddress(InetAddress.getLocalHost(), 4000);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+        InetSocketAddress listen;
+        try {
+            listen = new InetSocketAddress(InetAddress.getLocalHost(), 3000);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+
+        Sender sender = new Sender(send);
+        Listener listener = new Listener(listen);
+
+        sending.execute(sender);
     }
 }
