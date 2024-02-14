@@ -5,10 +5,21 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Switch {
+
+    private static String id;
+    private static List neighbors = new ArrayList<>();
+    private static String[] ips;
+
     public static void main(String[] args) throws Exception{
+
+        Parser parser = new Parser();
+        List neighbors = parser.getNeighbors(id);
+        ips = parser.getIP();
 
         DatagramSocket serverSocket = new DatagramSocket(3000);
         DatagramPacket clientRequest = new DatagramPacket(
