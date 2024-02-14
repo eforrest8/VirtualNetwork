@@ -11,11 +11,10 @@ public class Parser {
 
     String config;
     List neighborList = new ArrayList();
+    List ipArray = new ArrayList();
     //gets instantiated by pc/switch
 
-    public void parseConfig(String id){
-        //this method will get called and the argument passed to this method will be the id of the node using it
-        //it will return the node's neighbors, and their ip's and real ports
+    private String[] parseConfig(){
         try {
             config = Files.readString(Path.of("config.txt"), StandardCharsets.UTF_8);
         } catch (IOException e) {
@@ -23,8 +22,11 @@ public class Parser {
         }
 
         var initArray = config.split(";");
+        return initArray;
+    }
+    public List getNeighbors(String id){
+        var initArray = parseConfig();
         var neighborArray = initArray[0].split("/");
-        var ipArray = initArray[1].split("/");
 
 
         for (String s : neighborArray) {
@@ -34,17 +36,13 @@ public class Parser {
             }
         }
 
-        System.out.println(neighborList);
-
-        for (String s: ipArray){
-            System.out.println(s);
-        }
-
-
+        return neighborList;
     }
 
-    public static void main(String[] args) throws Exception{
-        Parser p = new Parser();
-        p.parseConfig("A");
+    public String[] getIP(){
+        var initArray = parseConfig();
+        var ipArray = initArray[1].split("/");
+        return ipArray;
     }
+
 }
