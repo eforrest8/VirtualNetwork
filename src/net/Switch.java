@@ -8,18 +8,18 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Switch {
 
     private static String id;
-    private static List neighbors = new ArrayList<>();
+    private static Map neighbors;
     private static String[] ips;
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
         Parser parser = new Parser();
-        List neighbors = parser.getNeighbors(id);
-        ips = parser.getIP();
+        neighbors = parser.getNeighbors(id);
 
         DatagramSocket serverSocket = new DatagramSocket(3000);
         DatagramPacket clientRequest = new DatagramPacket(
@@ -34,8 +34,10 @@ public class Switch {
         String serverResponse = new String(clientMessage);
         System.out.println(serverResponse);
         serverSocket.close();
+    }
 
-        // use parser to read config
+
+
 
         //public void readTable(){}
 
@@ -44,7 +46,6 @@ public class Switch {
         //public void flood(){}
 
         //public void send(){}
-    }
 }
 
 

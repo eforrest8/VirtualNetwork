@@ -6,22 +6,18 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class PC {
     //needs to be able to send and receive UDP
     private int MAC;
-    private static String id = "S1";
-    private static List neighbors;
-    private static String[] ips;
+    private static String id = "A";
+    private static Map neighbors;
+
     public static void main(String[] args) throws Exception {
 
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
-        System.out.println(neighbors);
 
         InetAddress serverIP = InetAddress.getByName(args[0]);
         int serverPort = Integer.parseInt(args[1]);
