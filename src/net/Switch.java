@@ -14,7 +14,6 @@ public class Switch {
 
     private static String id;
     private static Map neighbors;
-    private static String[] ips;
 
     public static void main(String[] args) throws Exception {
 
