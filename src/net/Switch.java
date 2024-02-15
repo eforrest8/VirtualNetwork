@@ -9,6 +9,8 @@ public class Switch extends ServerNode {
     private static String id = "S1";
     private static Map<String, InetSocketAddress> neighbors;
     private static  RoutingTable rt = new RoutingTable();
+
+    private static String[] separatedMessage;
     public static void main(String[] args) throws Exception {
 
         Parser parser = new Parser();
@@ -55,7 +57,8 @@ public class Switch extends ServerNode {
 
         String serverResponse = new String(clientMessage);
 
-        var separatedMessage = serverResponse.split("/");
+        separatedMessage = serverResponse.split("/");
+
 
         if(rt.getPortForDestination(separatedMessage[0]).isEmpty()){
             rt.updatePortMapping(separatedMessage[0], neighbors.get(separatedMessage[0]));
@@ -65,11 +68,23 @@ public class Switch extends ServerNode {
         Optional<InetSocketAddress> port = rt.getPortForDestination(separatedMessage[1]);
 
         if (port.isEmpty()) {
-            flood(separatedMessage[0], separatedMessage[2]);
+            try {
+                flood(separatedMessage[0], separatedMessage[2]);
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("flooding");
         }
         else{
-            Sender x = new Sender(neighbors.get(separatedMessage[1]), separatedMessage[2]);
+            InetSocketAddress a = null;
+
+            try {
+                a = new InetSocketAddress(InetAddress.getLocalHost(), 3000);
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+
+            Sender x = new Sender(a, separatedMessage[2]);
             sending.submit(x);
         }
         serverSocket.close();
@@ -77,10 +92,12 @@ public class Switch extends ServerNode {
     }
 }
 
-    public static void flood(String source, String message){
+    public static void flood(String source, String message) throws UnknownHostException {
         for (String s: neighbors.keySet()){
             if (!s.equals(source)){
-                Sender x = new Sender(neighbors.get(s), message);
+                InetSocketAddress a = new InetSocketAddress(InetAddress.getLocalHost(), 3000);
+                Sender x = new Sender(a, message);
+                sending.submit(x);
             }
         }
     }

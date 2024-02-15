@@ -11,7 +11,7 @@ import java.util.*;
 public class PC extends ServerNode {
     //needs to be able to send and receive UDP
     private int MAC;
-    private static String id = "B";
+    private static String id = "A";
     private static Map neighbors;
 
     public static void main(String[] args) throws Exception {
