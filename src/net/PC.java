@@ -8,50 +8,36 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class PC {
+public class PC extends ServerNode {
     //needs to be able to send and receive UDP
     private int MAC;
-    private static String id = "A";
+    private static String id = "B";
     private static Map neighbors;
 
     public static void main(String[] args) throws Exception {
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
 
-        InetAddress serverIP = InetAddress.getByName(args[0]);
-        int serverPort = Integer.parseInt(args[1]);
+        InetSocketAddress address = new InetSocketAddress(InetAddress.getLocalHost(), 3000);
 
-        if(args.length != 2){
-            System.out.println("Syntax: EchoClient <serverIP> <serverPort>");
-            return;
+        while (true){
+            System.out.println("Would you like to send a message?");
+            Scanner keyboard = new Scanner(System.in);
+            String response = keyboard.nextLine();
+            Listener l = new Listener(3000, id);
+            if (response.equals("q")){
+                sending.shutdown();
+                receiving.shutdown();
+            } else if (response.equals("y")) {
+                String message = createMessage(id);
+                Sender s = new Sender(address, message);
+                sending.submit(s);
+            }
+            receiving.submit(l);
         }
 
-        System.out.println("Type your message below.");
-        Scanner keyboard = new Scanner(System.in);
-
-        String message = keyboard.nextLine();
-        DatagramSocket socket = new DatagramSocket();
-        DatagramPacket request = new DatagramPacket(message.getBytes(),
-                message.getBytes().length,
-                serverIP,
-                serverPort
-        );
-        socket.send(request);
-        socket.close();
-
-
-        //uses parser to read config
-        //we're expected to use threads so these can run concurrently
-
-        //create virtual frame for udp payload
-        //this will include source mac, message, dest mac
-
-        //public void createFrame(){}
-
-        //public void receive(){
-
-        //reads to check if the packet is intended for this pc
     }
+
 }
 
 

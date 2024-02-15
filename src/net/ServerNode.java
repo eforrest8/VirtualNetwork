@@ -8,14 +8,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ServerNode {
-    private static ExecutorService sending = Executors.newFixedThreadPool(3);
-    private static ExecutorService receiving = Executors.newFixedThreadPool(3);
+    public static ExecutorService sending = Executors.newFixedThreadPool(3);
+    public static ExecutorService receiving = Executors.newFixedThreadPool(3);
 
     static class Listener implements Runnable {
-        private InetSocketAddress reception;
+        private int port;
+        private String id;
 
-        public Listener(InetSocketAddress address){
-            this.reception = address;
+        public Listener(int port, String id){
+            this.port = port;
+            this.id = id;
         }
 
         @Override
@@ -23,7 +25,7 @@ public class ServerNode {
             DatagramSocket serverSocket;
 
             try {
-                serverSocket = new DatagramSocket(reception);
+                serverSocket = new DatagramSocket(port);
             } catch (SocketException e) {
                 throw new RuntimeException(e);
             }
@@ -46,7 +48,12 @@ public class ServerNode {
 
             String serverResponse = new String(clientMessage);
 
-            System.out.println(serverResponse);
+            var separatedMessage = serverResponse.split("/");
+
+            if (separatedMessage[1].equals(id)){
+                System.out.println("\nMessage:\n" + separatedMessage[2]);
+            }
+
             serverSocket.close();
         }
 
@@ -56,21 +63,20 @@ public class ServerNode {
 
         private InetSocketAddress destination;
 
-        public Sender(InetSocketAddress address){
+        private String message;
+
+        public Sender(InetSocketAddress address, String message){
             this.destination = address;
+            this.message = message;
         }
 
         @Override
         public void run() {
 
-            System.out.println("Type your message below.");
-            Scanner keyboard = new Scanner(System.in);
-
-            String message = keyboard.nextLine();
             DatagramSocket socket = null;
 
             try {
-                socket = new DatagramSocket(destination);
+                socket = new DatagramSocket();
             } catch (SocketException e) {
                 throw new RuntimeException(e);
             }
@@ -101,23 +107,17 @@ public class ServerNode {
         }
     }
 
-    public static void main (String[] args) {
-        InetSocketAddress send;
-        try {
-            send = new InetSocketAddress(InetAddress.getLocalHost(), 4000);
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-        InetSocketAddress listen;
-        try {
-            listen = new InetSocketAddress(InetAddress.getLocalHost(), 3000);
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+    public static String createMessage(String id){
+        System.out.println("Type your message below.");
+        Scanner keyboard = new Scanner(System.in);
+        String message = keyboard.nextLine();
 
-        Sender sender = new Sender(send);
-        Listener listener = new Listener(listen);
+        System.out.println("Type the address of the recipient");
+        String receiver = keyboard.nextLine();
 
-        sending.execute(sender);
+        String dataToSend = id + "/" + receiver + "/" + message;
+        return dataToSend;
+
     }
+
 }
