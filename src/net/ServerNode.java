@@ -48,6 +48,8 @@ public class ServerNode {
 
             String serverResponse = new String(clientMessage);
 
+            System.out.println(serverResponse);
+
             var separatedMessage = serverResponse.split("/");
 
             if (separatedMessage[1].equals(id)){

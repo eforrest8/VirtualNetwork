@@ -35,24 +35,39 @@ public class Parser {
 
         for (String s : neighborArray) {
                 var n = s.split("=");
-                if (n[0].contains(id)){
+                if (n[0].equals(id)){
                 neighborList.add(n[1]);
             }
         }
-
-        System.out.println(neighborList);
 
         for (Object x : neighborList) {
             for (String s : ipArray){
                 if (s.contains(x.toString())){
                     var array = s.split("=");
                     var ipPort = array[1].split(":");
+                    System.out.println(array[0]);
+                    System.out.println(ipPort[0]);
+                    System.out.println(ipPort[1]);
                     parsed.put(array[0], new InetSocketAddress(ipPort[0], Integer.parseInt(ipPort[1])));
                 }
             }
         }
 
         return parsed;
+    }
+
+    public int getPortById(String id){
+        var initArray = parseConfig();
+        var ipArray = initArray[1].split("/");
+
+        for (String s : ipArray) {
+            var n = s.split("=");
+            if (n[0].equals(id)){
+                String[] ipPort = n[1].split(":");
+                return Integer.parseInt(ipPort[1]);
+            }
+        }
+        return 0;
     }
 
 }

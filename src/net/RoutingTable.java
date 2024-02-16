@@ -15,8 +15,8 @@ public class RoutingTable {
      * @return If found, an Optional containing the port associated
      * with the given destination. Otherwise, an empty Optional.
      */
-    public Optional<InetSocketAddress> getPortForDestination(String destination) {
-        return table.containsKey(destination) ? Optional.of(table.get(destination)) : Optional.empty();
+    public InetSocketAddress getPort(String destination) {
+        return table.containsKey(destination) ? table.get(destination) : null;
     }
 
     /**
