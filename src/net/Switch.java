@@ -15,6 +15,7 @@ public class Switch extends ServerNode {
         id = args[0];
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
+        System.out.println(neighbors);
         SwitchListener l = new SwitchListener(parser.getPortById(id), id);
         receiving.submit(l);
     }
@@ -56,9 +57,9 @@ public class Switch extends ServerNode {
                         clientRequest.getLength()
                 );
 
-                String serverResponse = new String(clientMessage);
+                String createdMessage = new String(clientMessage);
 
-                separatedMessage = serverResponse.split("/");
+                separatedMessage = createdMessage.split("/");
                 String source = separatedMessage[0];
 
 
@@ -71,13 +72,14 @@ public class Switch extends ServerNode {
 
                 if (destination == null) {
                     try {
-                        flood(separatedMessage[0], serverResponse);
+                        System.out.println(createdMessage);
+                        flood(source, createdMessage);
                     } catch (UnknownHostException e) {
                         throw new RuntimeException(e);
                     }
                     System.out.println("flooding");
                 } else {
-                    send(destination, serverResponse);
+                    send(destination, createdMessage);
                     System.out.println("message sent");
                 }
                 serverSocket.close();
@@ -89,6 +91,7 @@ public class Switch extends ServerNode {
         for (String s: neighbors.keySet()){
             if (!s.equals(source)){
                 send(neighbors.get(s), message);
+                System.out.println(message);
             }
         }
     }

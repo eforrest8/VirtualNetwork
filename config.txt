@@ -1,1 +1,1 @@
-S1=A/S1=B/A=S1/B=S1;A=localhost:3003/B=localhost:3001/S1=localhost:3002
+S1=A/S1=B/S1=C/A=S1/B=S1/C=S1;A=localhost:3003/B=localhost:3001/C=localhost:3004/S1=localhost:3002

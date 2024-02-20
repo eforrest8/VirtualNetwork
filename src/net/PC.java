@@ -18,15 +18,17 @@ public class PC extends ServerNode {
         id = args[0];
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
+
         for (String n : neighbors.keySet()){
             mySwitch = n;
         }
+
+        Scanner keyboard = new Scanner(System.in);
 
         while (true){
             Listener l = new Listener(parser.getPortById(id), id);
             receiving.submit(l);
             System.out.println("Would you like to send a message?");
-            Scanner keyboard = new Scanner(System.in);
             String response = keyboard.nextLine();
             if (response.equals("q")){
                 receiving.shutdown();
@@ -36,6 +38,7 @@ public class PC extends ServerNode {
                 System.out.println("Type the address of the recipient");
                 String receiver = keyboard.nextLine();
                 String packet = createMessage(id, receiver, message);
+                System.out.println(packet);
                 send(neighbors.get(mySwitch), packet);
             }
 
