@@ -32,7 +32,6 @@ public class PC extends ServerNode {
             Scanner keyboard = new Scanner(System.in);
             String response = keyboard.nextLine();
             if (response.equals("q")){
-                sending.shutdown();
                 receiving.shutdown();
             } else if (response.equals("y")) {
                 System.out.println("Type your message below.");

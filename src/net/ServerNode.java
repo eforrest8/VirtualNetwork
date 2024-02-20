@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ServerNode {
-    public static ExecutorService sending = Executors.newFixedThreadPool(3);
     public static ExecutorService receiving = Executors.newFixedThreadPool(3);
 
     static class Listener implements Runnable {
