@@ -15,7 +15,6 @@ public class Switch extends ServerNode {
         id = args[0];
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
-        System.out.println(neighbors);
         SwitchListener l = new SwitchListener(parser.getPortById(id), id);
         receiving.submit(l);
     }
@@ -65,9 +64,6 @@ public class Switch extends ServerNode {
 
                 if (rt.getAddress(source) == null) {
                     rt.updateTable(source, neighbors.get(source));
-                    System.out.println(source);
-                    System.out.println(neighbors.get(source));
-                    System.out.println(rt.getAddress(source));
                 }
 
 
@@ -81,8 +77,8 @@ public class Switch extends ServerNode {
                     }
                     System.out.println("flooding");
                 } else {
-                    System.out.println(destination);
                     send(destination, serverResponse);
+                    System.out.println("message sent");
                 }
                 serverSocket.close();
             }
@@ -92,7 +88,6 @@ public class Switch extends ServerNode {
     public static void flood(String source, String message) throws UnknownHostException {
         for (String s: neighbors.keySet()){
             if (!s.equals(source)){
-                System.out.println(message);
                 send(neighbors.get(s), message);
             }
         }

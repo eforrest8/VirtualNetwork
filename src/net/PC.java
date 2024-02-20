@@ -18,12 +18,9 @@ public class PC extends ServerNode {
         id = args[0];
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
-        System.out.println(parser.getPortById(id));
         for (String n : neighbors.keySet()){
             mySwitch = n;
         }
-
-        System.out.println(neighbors.get("A"));
 
         while (true){
             Listener l = new Listener(parser.getPortById(id), id);

@@ -40,16 +40,11 @@ public class Parser {
             }
         }
 
-        System.out.println(neighborList);
-
         for (Object x : neighborList) {
             for (String s : addressArray){
                 if (s.contains(x.toString())){
                     var idRemoved = s.split("=");
                     var ipPort = idRemoved[1].split(":");
-                    System.out.println(idRemoved[0]);
-                    System.out.println(ipPort[0]);
-                    System.out.println(ipPort[1]);
                     parsed.put(idRemoved[0], new InetSocketAddress(ipPort[0], Integer.parseInt(ipPort[1])));
                 }
             }
