@@ -15,7 +15,7 @@ public class RoutingTable {
      * @return If found, an Optional containing the port associated
      * with the given destination. Otherwise, an empty Optional.
      */
-    public InetSocketAddress getPort(String destination) {
+    public InetSocketAddress getAddress(String destination) {
         return table.containsKey(destination) ? table.get(destination) : null;
     }
 
@@ -25,7 +25,7 @@ public class RoutingTable {
      * @param destination The name of a node.
      * @param port The port associated with the destination.
      */
-    public void updatePortMapping(String destination, InetSocketAddress port) {
+    public void updateTable(String destination, InetSocketAddress port) {
         table.put(destination, port);
     }
 }

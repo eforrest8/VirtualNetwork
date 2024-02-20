@@ -10,7 +10,7 @@ import java.util.*;
 
 public class PC extends ServerNode {
     //needs to be able to send and receive UDP
-    private int MAC;
+    private static String mySwitch;
     private static String id;
     private static Map<String, InetSocketAddress> neighbors;
 
@@ -18,6 +18,12 @@ public class PC extends ServerNode {
         id = args[0];
         Parser parser = new Parser();
         neighbors = parser.getNeighbors(id);
+        System.out.println(parser.getPortById(id));
+        for (String n : neighbors.keySet()){
+            mySwitch = n;
+        }
+
+        System.out.println(neighbors.get("A"));
 
         while (true){
             Listener l = new Listener(parser.getPortById(id), id);
@@ -29,9 +35,12 @@ public class PC extends ServerNode {
                 sending.shutdown();
                 receiving.shutdown();
             } else if (response.equals("y")) {
-                String message = createMessage(id);
-                Sender s = new Sender(neighbors.get("S1"), message);
-                sending.submit(s);
+                System.out.println("Type your message below.");
+                String message = keyboard.nextLine();
+                System.out.println("Type the address of the recipient");
+                String receiver = keyboard.nextLine();
+                String packet = createMessage(id, receiver, message);
+                send(neighbors.get(mySwitch), packet);
             }
 
         }

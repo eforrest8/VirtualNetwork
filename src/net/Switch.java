@@ -60,19 +60,20 @@ public class Switch extends ServerNode {
                 String serverResponse = new String(clientMessage);
 
                 separatedMessage = serverResponse.split("/");
+                String source = separatedMessage[0];
 
 
-                if (rt.getPort(separatedMessage[0]) == null) {
-                    rt.updatePortMapping(separatedMessage[0], neighbors.get(separatedMessage[0]));
-                    System.out.println(separatedMessage[0]);
-                    System.out.println(neighbors.get(separatedMessage[0]));
-                    System.out.println(rt.getPort(separatedMessage[0]));
+                if (rt.getAddress(source) == null) {
+                    rt.updateTable(source, neighbors.get(source));
+                    System.out.println(source);
+                    System.out.println(neighbors.get(source));
+                    System.out.println(rt.getAddress(source));
                 }
 
 
-                InetSocketAddress port = rt.getPort(separatedMessage[1]);
+                InetSocketAddress destination = rt.getAddress(separatedMessage[1]);
 
-                if (port == null) {
+                if (destination == null) {
                     try {
                         flood(separatedMessage[0], serverResponse);
                     } catch (UnknownHostException e) {
@@ -80,9 +81,8 @@ public class Switch extends ServerNode {
                     }
                     System.out.println("flooding");
                 } else {
-                    System.out.println(port);
-                    Sender x = new Sender(port, serverResponse);
-                    sending.submit(x);
+                    System.out.println(destination);
+                    send(destination, serverResponse);
                 }
                 serverSocket.close();
             }
@@ -93,8 +93,7 @@ public class Switch extends ServerNode {
         for (String s: neighbors.keySet()){
             if (!s.equals(source)){
                 System.out.println(message);
-                Sender x = new Sender(neighbors.get(s), message);
-                sending.submit(x);
+                send(neighbors.get(s), message);
             }
         }
     }

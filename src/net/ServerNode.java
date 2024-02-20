@@ -61,62 +61,32 @@ public class ServerNode {
 
     }
 
-    static class Sender implements Runnable{
 
-        private InetSocketAddress destination;
+    public static void send(InetSocketAddress destination, String message){
+        DatagramSocket socket = null;
 
-        private String message;
-
-        public Sender(InetSocketAddress address, String message){
-            this.destination = address;
-            this.message = message;
+        try {
+            socket = new DatagramSocket();
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
         }
 
-        @Override
-        public void run() {
+        DatagramPacket request = new DatagramPacket(message.getBytes(),
+                message.getBytes().length,
+                destination
+        );
 
-            DatagramSocket socket = null;
-
-            try {
-                socket = new DatagramSocket();
-            } catch (SocketException e) {
-                throw new RuntimeException(e);
-            }
-
-            DatagramPacket request = new DatagramPacket(message.getBytes(),
-                    message.getBytes().length,
-                    destination
-            );
-
-            try {
-                socket.send(request);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            socket.close();
+        try {
+            socket.send(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
+        socket.close();
     }
 
 
-    static class Shutdown implements Runnable{
-
-        @Override
-        public void run(){
-            sending.shutdown();
-            receiving.shutdown();
-        }
-    }
-
-    public static String createMessage(String id){
-        System.out.println("Type your message below.");
-        Scanner keyboard = new Scanner(System.in);
-        String message = keyboard.nextLine();
-
-        System.out.println("Type the address of the recipient");
-        String receiver = keyboard.nextLine();
-
+    public static String createMessage(String id, String receiver, String message){
         String dataToSend = id + "/" + receiver + "/" + message;
         return dataToSend;
 
