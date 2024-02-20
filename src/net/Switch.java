@@ -57,9 +57,9 @@ public class Switch extends ServerNode {
                         clientRequest.getLength()
                 );
 
-                String createdMessage = new String(clientMessage);
+                String originalMessage = new String(clientMessage);
 
-                separatedMessage = createdMessage.split("/");
+                separatedMessage = originalMessage.split("/");
                 String source = separatedMessage[0];
 
 
@@ -68,7 +68,10 @@ public class Switch extends ServerNode {
                 }
 
 
+
                 InetSocketAddress destination = rt.getAddress(separatedMessage[1]);
+
+                String createdMessage = createMessage(id, separatedMessage[1], separatedMessage[2]);
 
                 if (destination == null) {
                     try {
