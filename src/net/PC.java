@@ -24,10 +24,10 @@ public class PC extends ServerNode {
         }
 
         Scanner keyboard = new Scanner(System.in);
+        Listener l = new Listener(parser.getPortById(id), id);
+        receiving.submit(l);
 
         while (true){
-            Listener l = new Listener(parser.getPortById(id), id);
-            receiving.submit(l);
             System.out.println("Would you like to send a message?");
             String response = keyboard.nextLine();
             if (response.equals("q")){

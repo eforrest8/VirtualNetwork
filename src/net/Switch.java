@@ -62,9 +62,10 @@ public class Switch extends ServerNode {
                 separatedMessage = originalMessage.split("/");
                 String source = separatedMessage[0];
 
+                InetSocketAddress senderAddress = new InetSocketAddress(clientRequest.getAddress(), clientRequest.getPort());
 
                 if (rt.getAddress(source) == null) {
-                    rt.updateTable(source, new InetSocketAddress(clientRequest.getAddress(), clientRequest.getPort()));
+                    rt.updateTable(source, senderAddress);
                 }
 
                 InetSocketAddress destination = rt.getAddress(separatedMessage[1]);
@@ -72,7 +73,7 @@ public class Switch extends ServerNode {
                 if (destination == null) {
                     try {
                         System.out.println(originalMessage);
-                        flood(source, originalMessage);
+                        flood(source, originalMessage, senderAddress);
                     } catch (UnknownHostException e) {
                         throw new RuntimeException(e);
                     }
@@ -86,9 +87,9 @@ public class Switch extends ServerNode {
         }
 }
 
-    public static void flood(String source, String message) throws UnknownHostException {
+    public static void flood(String source, String message, InetSocketAddress senderAddress) throws UnknownHostException {
         for (String s: neighbors.keySet()){
-            if (!s.equals(source)){
+            if (!s.equals(source) && neighbors.get(s).equals(senderAddress)){
                 send(neighbors.get(s), message);
                 System.out.println(message);
             }
