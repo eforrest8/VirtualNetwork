@@ -64,25 +64,21 @@ public class Switch extends ServerNode {
 
 
                 if (rt.getAddress(source) == null) {
-                    rt.updateTable(source, neighbors.get(source));
+                    rt.updateTable(source, new InetSocketAddress(clientRequest.getAddress(), clientRequest.getPort()));
                 }
-
-
 
                 InetSocketAddress destination = rt.getAddress(separatedMessage[1]);
 
-                String createdMessage = createMessage(id, separatedMessage[1], separatedMessage[2]);
-
                 if (destination == null) {
                     try {
-                        System.out.println(createdMessage);
-                        flood(source, createdMessage);
+                        System.out.println(originalMessage);
+                        flood(source, originalMessage);
                     } catch (UnknownHostException e) {
                         throw new RuntimeException(e);
                     }
                     System.out.println("flooding");
                 } else {
-                    send(destination, createdMessage);
+                    send(destination, originalMessage);
                     System.out.println("message sent");
                 }
                 serverSocket.close();
