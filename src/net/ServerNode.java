@@ -51,11 +51,11 @@ public class ServerNode {
 
                 if (separatedMessage[1].equals(id)) {
                     System.out.println("\nMessage:\n" + separatedMessage[2]);
+                    serverSocket.close();
                 } else {
                     System.out.println("Received message not intended for this PC");
+                    serverSocket.close();
                 }
-
-                serverSocket.close();
             }
         }
 
@@ -86,8 +86,11 @@ public class ServerNode {
     }
 
 
-    public static String createMessage(String id, String receiver, String message){
+    public static String createMessage(String id, String receiver, String message, String newSource){
         String dataToSend = id + "/" + receiver + "/" + message;
+        if (newSource != null){
+            dataToSend += "/" + newSource;
+        }
         return dataToSend;
 
     }
