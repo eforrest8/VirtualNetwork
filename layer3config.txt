@@ -1,0 +1,13 @@
+router R1=127.0.0.1:5001
+router R2=127.0.0.1:5002
+router R3=127.0.0.1:5003
+subnet S1
+subnet S2
+subnet S3
+subnet S4
+connect R1, S1
+connect R1, S2
+connect R2, S2
+connect R2, S3
+connect R3, S3
+connect R3, S4
