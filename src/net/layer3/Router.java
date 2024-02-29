@@ -10,5 +10,10 @@ public class Router {
 
     public Router(RoutingConfig config) {}
 
-    public void start() {}
+    public void start() {
+        // initialize table with adjacent subnets w/ distance 0, nexthop self
+        // send map to neighbors
+        // use received maps to optimize own map
+        // print out tables
+    }
 }
