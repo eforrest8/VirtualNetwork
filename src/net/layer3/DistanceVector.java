@@ -20,6 +20,10 @@ public class DistanceVector {
                 .mapToInt(e -> e.getKey().length() + e.getValue().byteLength())
                 .sum();
     }
+
+    public void addRecord(String subnet, Route route){
+        distances.put(subnet, route);
+    }
 }
 
 record Route(int distance, String nextHop) {
