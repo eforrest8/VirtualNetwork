@@ -34,7 +34,13 @@ public class DistanceVector {
         }
     }
 
-    public void addRecord(String subnet, Route route){
-        distances.put(subnet, route);
+    public void updateRecord(String subnet, Route route) {
+        distances.computeIfPresent(subnet, (key, oldRoute) ->
+                oldRoute.distance() <= route.distance() ? oldRoute : route);
+        distances.putIfAbsent(subnet, route);
+    }
+
+    public void merge(DistanceVector other) {
+        //
     }
 }
