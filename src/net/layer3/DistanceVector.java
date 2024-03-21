@@ -10,6 +10,8 @@ public class DistanceVector {
      */
     Map<String, Route> distances = new HashMap<>();
 
+    public DistanceVector() {}
+
     public DistanceVector(byte[] serialized) {
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serialized))) {
             if (ois.readObject() instanceof Map map) {
@@ -30,12 +32,6 @@ public class DistanceVector {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private int byteLength() {
-        return distances.entrySet().stream()
-                .mapToInt(e -> e.getKey().length() + e.getValue().byteLength())
-                .sum();
     }
 
     public void addRecord(String subnet, Route route){
