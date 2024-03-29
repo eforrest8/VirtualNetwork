@@ -34,7 +34,7 @@ public class Router {
             try (DatagramSocket socket = new DatagramSocket(config.physicalAddressOf(id))) {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
                 socket.receive(packet);
-                distanceVector.merge(new DistanceVector(packet.getData()));
+                distanceVector.merge(new DistanceVector(packet.getData(),//recieve who sent the distance vector));
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

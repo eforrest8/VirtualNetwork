@@ -40,7 +40,15 @@ public class DistanceVector {
         distances.putIfAbsent(subnet, route);
     }
 
-    public void merge(DistanceVector other) {
-        //
+    public void merge(DistanceVector other, String sender) {
+        //recieves other distance vector
+        for (String subnet : other.distances.keySet()){
+            if(!this.distances.containsKey(subnet)){
+                Route oldRoute = other.distances.get(subnet);
+                Route newRoute = new Route(oldRoute.distance() + 1, sender);
+                updateRecord(subnet, newRoute);
+            }
+        }
+            //send updated table
     }
 }
