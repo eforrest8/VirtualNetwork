@@ -36,4 +36,12 @@ public class RoutingConfig {
     public InetSocketAddress physicalAddressOf(String id) {
         return routers.get(id);
     }
+
+    public String idOf(InetSocketAddress address) {
+        return routers.entrySet().stream()
+                .filter(e -> e.getValue().equals(address))
+                .findAny()
+                .map(Map.Entry::getKey)
+                .orElseThrow();
+    }
 }
