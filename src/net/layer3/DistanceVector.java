@@ -34,21 +34,22 @@ public class DistanceVector {
         }
     }
 
-    public void updateRecord(String subnet, Route route) {
+    public boolean updateRecord(String subnet, Route route) {
         distances.computeIfPresent(subnet, (key, oldRoute) ->
                 oldRoute.distance() <= route.distance() ? oldRoute : route);
         distances.putIfAbsent(subnet, route);
     }
 
-    public void merge(DistanceVector other, String sender) {
+    public boolean merge(DistanceVector other, String sender) {
+        boolean mapChanged = false;
         //recieves other distance vector
         for (String subnet : other.distances.keySet()){
-            if(!this.distances.containsKey(subnet)){
-                Route oldRoute = other.distances.get(subnet);
-                Route newRoute = new Route(oldRoute.distance() + 1, sender);
-                updateRecord(subnet, newRoute);
-            }
+            Route oldRoute = other.distances.get(subnet);
+            Route newRoute = new Route(oldRoute.distance() + 1, sender);
+            if (updateRecord(subnet, newRoute)){
+                mapChanged = true;
+            };
         }
-            //send updated table
+            return mapChanged;
     }
 }

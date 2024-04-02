@@ -3,6 +3,7 @@ package net.layer3;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -34,7 +35,10 @@ public class Router {
             try (DatagramSocket socket = new DatagramSocket(config.physicalAddressOf(id))) {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
                 socket.receive(packet);
-                distanceVector.merge(new DistanceVector(packet.getData(),//recieve who sent the distance vector));
+                if (distanceVector.merge(new DistanceVector(packet.getData()),
+                        config.idOf(new InetSocketAddress(packet.getAddress(), packet.getPort())))){
+                    propagateDistanceVector();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
