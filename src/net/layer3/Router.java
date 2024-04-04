@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class Router {
@@ -30,9 +31,8 @@ public class Router {
         this.distanceVector = new DistanceVector();
         List<String> connectedSubnets = config.connectedSubnets(id);
         initializeDistanceVector(connectedSubnets);
-        Executors.newCachedThreadPool().execute(this::listen);
-        // use received maps to optimize own map
-        // print out tables
+        Executor pool = Executors.newCachedThreadPool();
+        pool.execute(this::listen);
     }
 
     public void listen() {
