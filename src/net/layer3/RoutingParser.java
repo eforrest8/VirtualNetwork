@@ -11,11 +11,11 @@ import java.util.Map;
 
 public class RoutingParser {
 
-    public static RoutingConfig load() {
+    public static RoutingConfig load(String filename) {
         Map<String, InetSocketAddress> routers = new HashMap<>();
         List<String> subnets = new LinkedList<>();
         Map<String, List<String>> connections = new HashMap<>();
-        try (BufferedReader fr = new BufferedReader(new FileReader("layer3config.txt"))) {
+        try (BufferedReader fr = new BufferedReader(new FileReader(filename))) {
             fr.lines().forEachOrdered(line -> {
                 if (line.startsWith("router")) {
                     String name = line.substring(
@@ -33,7 +33,7 @@ public class RoutingParser {
                     String firstName = line.substring(
                             line.indexOf(" ") + 1,
                             line.indexOf(","));
-                    String secondName = line.substring(line.indexOf(", ") + 1);
+                    String secondName = line.substring(line.indexOf(", ") + 1).trim();
                     connections.putIfAbsent(firstName, new LinkedList<>());
                     connections.get(firstName).add(secondName);
                     connections.putIfAbsent(secondName, new LinkedList<>());
@@ -41,6 +41,7 @@ public class RoutingParser {
                 }
             });
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         return new RoutingConfig(routers, subnets, connections);

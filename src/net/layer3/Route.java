@@ -1,3 +1,5 @@
 package net.layer3;
 
-public record Route(int distance, String nextHop) {}
+import java.io.Serializable;
+
+public record Route(int distance, String nextHop) implements Serializable {}
