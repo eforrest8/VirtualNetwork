@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
-public class Switch extends ServerNode {
+public class Switch extends ServerNode{
 
     private static String id;
     private static int port;
@@ -20,15 +20,13 @@ public class Switch extends ServerNode {
         neighbors = parser.getNeighbors(id);
         port = parser.getPortById(id);
         System.out.println(neighbors);
+        DatagramSocket serverSocket;
+        try {
+            serverSocket = new DatagramSocket(port);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
         while(true) {
-            DatagramSocket serverSocket;
-
-            try {
-                serverSocket = new DatagramSocket(port);
-            } catch (SocketException e) {
-                throw new RuntimeException(e);
-            }
-
             DatagramPacket clientRequest = new DatagramPacket(
                     new byte[1024],
                     1024);
@@ -46,50 +44,60 @@ public class Switch extends ServerNode {
             );
 
             String originalMessage = new String(clientMessage);
-
             separatedMessage = originalMessage.split("/");
-            String source = separatedMessage[0];
+            String sourceId = separatedMessage[0];
 
-            if (separatedMessage.length == 4){
-                newSource = separatedMessage[3];
-            }
-            else{
-                newSource = source;
-            }
 
-            if (rt.getAddress(source) == null) {
-                rt.updateTable(source, neighbors.get(newSource));
+            if (rt.getAddress(sourceId) == null) {
+                rt.updateTable(sourceId, neighbors.get(sourceId));
             }
 
             InetSocketAddress destination = rt.getAddress(separatedMessage[1]);
-            var updatedMessage = createMessage(separatedMessage[0], separatedMessage[1], separatedMessage[2], id);
+            InetSocketAddress sourceAddress = new InetSocketAddress(clientRequest.getAddress(),
+                    clientRequest.getPort());
 
             if (destination == null) {
                 try {
-                    flood(newSource, updatedMessage);
-                    serverSocket.close();
+                    flood(sourceId, originalMessage, serverSocket, sourceAddress);
+                    serverSocket.disconnect();
                 } catch (UnknownHostException e) {
                     throw new RuntimeException(e);
                 }
                 System.out.println("flooding");
 
             } else {
-                send(destination, updatedMessage);
-                serverSocket.close();
+                send(destination, originalMessage, serverSocket);
+                serverSocket.disconnect();
                 System.out.println("message sent");
 
             }
         }
     }
 
-    public static void flood(String source, String message) throws UnknownHostException {
+    public static void flood(String sourceId, String message, DatagramSocket socket, InetSocketAddress sourceAddress) throws UnknownHostException {
         for (String id: neighbors.keySet()){
-            if (!id.equals(source) && !id.equals(newSource)){
-                send(neighbors.get(id), message);
+            if (!id.equals(sourceId) && !neighbors.get(id).equals(sourceAddress)){
+                send(neighbors.get(id), message, socket);
                 System.out.println(id);
                 System.out.println(newSource);
             }
         }
+    }
+
+    public static void send(InetSocketAddress destination, String message, DatagramSocket socket){
+
+        DatagramPacket request = new DatagramPacket(message.getBytes(),
+                message.getBytes().length,
+                destination
+        );
+
+        try {
+            socket.send(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        socket.disconnect();
     }
 }
 

@@ -1,9 +1,7 @@
 package net;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.io.IOException;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.*;
@@ -47,6 +45,30 @@ public class PC extends ServerNode {
 
         }
 
+    }
+
+
+    public static void send(InetSocketAddress destination, String message){
+        DatagramSocket socket = null;
+
+        try {
+            socket = new DatagramSocket();
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+
+        DatagramPacket request = new DatagramPacket(message.getBytes(),
+                message.getBytes().length,
+                destination
+        );
+
+        try {
+            socket.send(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        socket.close();
     }
 
 }

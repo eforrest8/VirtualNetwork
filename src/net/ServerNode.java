@@ -62,30 +62,6 @@ public class ServerNode {
     }
 
 
-    public static void send(InetSocketAddress destination, String message){
-        DatagramSocket socket = null;
-
-        try {
-            socket = new DatagramSocket();
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
-
-        DatagramPacket request = new DatagramPacket(message.getBytes(),
-                message.getBytes().length,
-                destination
-        );
-
-        try {
-            socket.send(request);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        socket.close();
-    }
-
-
     public static String createMessage(String id, String receiver, String message, String newSource){
         String dataToSend = id + "/" + receiver + "/" + message;
         if (newSource != null){
