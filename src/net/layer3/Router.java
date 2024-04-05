@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -22,7 +21,7 @@ public class Router {
         }
         System.out.println("initializing router " + args[0] + " with config file " + args[1]);
         RoutingConfig config = RoutingParser.load(args[1]);
-        Router me = new Router(config, args[0]);
+        new Router(config, args[0]);
     }
 
     public Router(RoutingConfig config, String id) {
@@ -38,6 +37,7 @@ public class Router {
     public void listen() {
         try (DatagramSocket socket = new DatagramSocket(config.physicalAddressOf(id))) {
             propagateDistanceVector(socket);
+            //noinspection InfiniteLoopStatement
             while (true) {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
                 socket.receive(packet);
@@ -52,7 +52,7 @@ public class Router {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
     }
 

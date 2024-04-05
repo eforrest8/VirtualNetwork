@@ -15,7 +15,9 @@ public class DistanceVector {
 
     public DistanceVector(byte[] serialized) {
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serialized))) {
+            //noinspection rawtypes
             if (ois.readObject() instanceof Map map) {
+                //noinspection unchecked
                 distances = (Map<String, Route>) map;
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -61,7 +63,7 @@ public class DistanceVector {
             Route newRoute = new Route(oldRoute.distance() + 1, sender);
             if (updateRecord(subnet, newRoute)){
                 mapChanged = true;
-            };
+            }
         }
             return mapChanged;
     }

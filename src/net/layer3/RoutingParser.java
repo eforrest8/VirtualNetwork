@@ -41,7 +41,7 @@ public class RoutingParser {
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }
         return new RoutingConfig(routers, subnets, connections);
