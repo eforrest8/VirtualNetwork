@@ -1,6 +1,6 @@
-router R1=127.0.0.1:5001
-router R2=127.0.0.1:5002
-router R3=127.0.0.1:5003
+router R1=10.222.30.228:5001
+router R2=10.222.12.173:5002
+router R3=10.222.97.190:5003
 subnet S1
 subnet S2
 subnet S3
