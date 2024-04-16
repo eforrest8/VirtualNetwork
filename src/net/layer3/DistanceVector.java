@@ -38,21 +38,19 @@ public class DistanceVector {
     }
 
     /**
-     * <h1>lol i'm doing this in the most unreadable way imaginable</h1>
      * <p>
-     *     this is a boolean OR. the left term is true when the old route
-     *     to this subnet is not equal to the one we get after running the
-     *     inner portion. (i.e. the route changed.)
-     *     the right term is true when no route was previously
-     *     associated with this subnet. (i.e. the route changed.)
-     *     If either is true, we return true; otherwise we return false.
+     *     my logic here was not correct ;.;
      * </p>
-     * <p>i hope my logic here is correct >.<</p>
      */
-    public boolean updateRecord(String subnet, Route route) {
-        return !Objects.equals(distances.computeIfPresent(subnet, (key, oldRoute) ->
-                oldRoute.distance() <= route.distance() ? oldRoute : route), distances.get(subnet)) ||
-        distances.putIfAbsent(subnet, route) == null;
+    public boolean updateRecord(String subnet, Route routeB) {
+        if (distances.containsKey(subnet)) {
+            var oldRoute = distances.get(subnet);
+            var newRoute = distances.computeIfPresent(subnet, (key, routeA) ->
+                    routeA.distance() <= routeB.distance() ? routeA : routeB);
+            return !Objects.equals(oldRoute, newRoute);
+        }
+        distances.put(subnet, routeB);
+        return true;
     }
 
     public boolean merge(DistanceVector other, String sender) {
