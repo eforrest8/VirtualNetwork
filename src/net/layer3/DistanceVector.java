@@ -46,7 +46,7 @@ public class DistanceVector {
         if (distances.containsKey(subnet)) {
             var oldRoute = distances.get(subnet);
             var newRoute = distances.computeIfPresent(subnet, (key, routeA) ->
-                    routeA.distance() <= routeB.distance() ? routeA : routeB);
+                    routeA.distance() < routeB.distance() ? routeA : routeB);
             return !Objects.equals(oldRoute, newRoute);
         }
         distances.put(subnet, routeB);
