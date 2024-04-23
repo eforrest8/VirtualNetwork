@@ -78,8 +78,6 @@ public class Switch extends ServerNode{
         for (String id: neighbors.keySet()){
             if (!id.equals(sourceId) && !neighbors.get(id).equals(sourceAddress)){
                 send(neighbors.get(id), message, socket);
-                System.out.println(id);
-                System.out.println(newSource);
             }
         }
     }

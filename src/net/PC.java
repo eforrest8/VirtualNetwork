@@ -38,7 +38,6 @@ public class PC extends ServerNode {
                 System.out.println("Type the address of the recipient");
                 String receiver = keyboard.nextLine();
                 String packet = createMessage(id, receiver, message, null);
-                System.out.println(packet);
                 send(neighbors.get(mySwitch), packet);
                 response = null;
             }
