@@ -42,14 +42,13 @@ public class Router {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
                 socket.receive(packet);
                 System.out.println("received packet");
-                if (distanceVector.merge(new DistanceVector(packet.getData()),
-                        config.idOf(new InetSocketAddress(packet.getAddress(), packet.getPort())))){
-                    propagateDistanceVector(socket);
-                    System.out.println("distance vector changed:");
-                    System.out.println(distanceVector);
-                } else {
-                    System.out.println("distance vector unchanged");
+                if(packet.getData()[0] == 1){
+                    receiveRoutingTable(packet, socket);
                 }
+                else{
+                    //normal packet stuff
+                }
+
             }
         } catch (IOException e) {
             e.printStackTrace(System.err);
@@ -77,5 +76,16 @@ public class Router {
         byte[] data = distanceVector.toBytes();
         socket.send(new DatagramPacket(data, data.length));
         socket.disconnect();
+    }
+
+    private void receiveRoutingTable(DatagramPacket packet, DatagramSocket socket) throws IOException {
+        if (distanceVector.merge(new DistanceVector(packet.getData()),
+                config.idOf(new InetSocketAddress(packet.getAddress(), packet.getPort())))) {
+            propagateDistanceVector(socket);
+            System.out.println("distance vector changed:");
+            System.out.println(distanceVector);
+        } else {
+            System.out.println("distance vector unchanged");
+        }
     }
 }

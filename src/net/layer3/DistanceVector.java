@@ -1,6 +1,7 @@
 package net.layer3;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +15,8 @@ public class DistanceVector {
     public DistanceVector() {}
 
     public DistanceVector(byte[] serialized) {
-        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serialized))) {
+        byte[] updatedSerialized = Arrays.copyOfRange(serialized, 1, serialized.length);
+        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(updatedSerialized))) {
             //noinspection rawtypes
             if (ois.readObject() instanceof Map map) {
                 //noinspection unchecked
@@ -28,6 +30,7 @@ public class DistanceVector {
     byte[] toBytes() {
         try (var baos = new ByteArrayOutputStream()) {
             var oos = new ObjectOutputStream(baos);
+            oos.writeByte(1);
             oos.writeObject(distances);
             oos.flush();
             oos.close();
