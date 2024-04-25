@@ -1,0 +1,49 @@
+#   FILE FORMAT
+#
+#   leading/trailing whitespace is ignored
+#   linebreaks are important
+#
+#   device definitions:
+#   host
+#       <address>
+#       <vMAC>
+#       <network>
+#       <gateway>
+#       <connections>
+#
+#   switch
+#       <address>
+#       <vMAC>
+#       <connections>
+#
+#   router
+#       <address>
+#       <vMAC>
+#       <subnets>
+#
+#   field definitions:
+#   <address> ip:port
+#   <vMAC> just a string
+#   <network> string, name of subnet
+#   <gateway> router to use to access other subnets
+#       assumed to be connected to the same subnet as this device
+#   <connections> list of connected devices
+#       in format [d1, d2, d3, ...]
+#   <subnets> list of connected subnets and their respective entry points
+#       in format [s1=d1, s2=d2, ...]
+
+
+host
+    127.0.0.1:5001
+    h1
+    N1
+    R1
+    [s1]
+switch
+    127.0.0.1:6001
+    s1
+    [h1, R1]
+router
+    127.0.0.1:7001
+    R1
+    [N1=s1, N2=s2]
