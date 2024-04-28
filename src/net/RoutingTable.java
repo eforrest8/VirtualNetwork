@@ -9,7 +9,7 @@ public class RoutingTable {
     private final Map<String, InetSocketAddress> table = new HashMap<>();
 
     public InetSocketAddress getAddress(String destination) {
-        return table.containsKey(destination) ? table.get(destination) : null;
+        return table.getOrDefault(destination, null);
     }
 
     public void updateTable(String destination, InetSocketAddress port) {

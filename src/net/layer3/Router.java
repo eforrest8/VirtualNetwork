@@ -1,18 +1,18 @@
 package net.layer3;
 
-import java.io.IOException;
+import net.*;
+
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class Router {
 
-    private final String id;
-    private final RoutingConfig config;
+    private final CombinedConfig config;
+    private final RouterConfig self;
     private final DistanceVector distanceVector;
+    private DatagramSocket socket;
 
     public static void main(String... args) {
         if (args.length != 2) {
@@ -20,72 +20,109 @@ public class Router {
             System.exit(1);
         }
         System.out.println("initializing router " + args[0] + " with config file " + args[1]);
-        RoutingConfig config = RoutingParser.load(args[1]);
+        CombinedConfig config = new CombinedConfig(args[1]);
         new Router(config, args[0]);
     }
 
-    public Router(RoutingConfig config, String id) {
+    public Router(CombinedConfig config, String id) {
         this.config = config;
-        this.id = id;
         this.distanceVector = new DistanceVector();
-        List<String> connectedSubnets = config.connectedSubnets(id);
-        initializeDistanceVector(connectedSubnets);
-        Executor pool = Executors.newCachedThreadPool();
-        pool.execute(this::listen);
+        this.self = config.getRouterByMAC(id);
+        initializeDistanceVector();
+        new Thread(this::listen).start();
     }
 
-    public void listen() {
-        try (DatagramSocket socket = new DatagramSocket(config.physicalAddressOf(id))) {
-            propagateDistanceVector(socket);
-            //noinspection InfiniteLoopStatement
+    private void listen() {
+        try {
+            socket = new DatagramSocket(self.address());
+            propagateDistanceVector();
             while (true) {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
                 socket.receive(packet);
                 System.out.println("received packet");
-                if(packet.getData()[0] == 1){
-                    receiveRoutingTable(packet, socket);
+                try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
+                    switch (ois.readObject()) {
+                        case StringPacket p -> handlePacket(p);
+                        case DistanceVectorPacket dvp -> handleDistanceVector(
+                                dvp.payload(),
+                                config.getDeviceByAddress(new InetSocketAddress(packet.getAddress(), packet.getPort()))
+                        );
+                        default -> throw new RuntimeException();
+                    }
+                } catch (Exception ignored) {
+                    System.out.println("Received invalid packet, discarding...");
                 }
-                else{
-                    //normal packet stuff
-                }
-
             }
         } catch (IOException e) {
             e.printStackTrace(System.err);
+        } finally {
+            socket.close();
         }
     }
 
-    private void initializeDistanceVector(List<String> connectedSubnets) {
-        for (String subnet : connectedSubnets) {
-            distanceVector.updateRecord(subnet, new Route(0, id));
+    private void handlePacket(StringPacket p) throws IOException {
+        System.out.println("Processing packet... " + p);
+        String targetSubnet = p.dstIP().split("\\.")[0];
+        String finalDestination = p.dstIP().split("\\.")[1];
+        var nextHop = distanceVector.distances.get(targetSubnet).nextHop();
+        String destination;
+        if (nextHop.equals(self.vMAC())) {
+            destination = finalDestination;
+        } else {
+            destination = nextHop;
+        }
+        self.subnetConnections().get(targetSubnet);
+        StringPacket forwarded = new StringPacket(self.vMAC(), destination, p.srcIP(), p.dstIP(), p.payload());
+        sendTo(config.getDeviceByMAC(nextHop).address(), forwarded);
+    }
+
+    private void initializeDistanceVector() {
+        for (String subnet : self.subnetConnections().keySet()) {
+            distanceVector.updateRecord(subnet, new Route(0, self.vMAC()));
         }
         System.out.println("Initialized distance vector as:");
         System.out.println(distanceVector);
     }
 
-    private void propagateDistanceVector(DatagramSocket socket) throws IOException {
-        System.out.println("propagating distance vector");
-        for (String router : config.adjacentRouters(id)) {
-            sendMap(router, socket);
-        }
-    }
-
-    private void sendMap(String target, DatagramSocket socket) throws IOException {
-        System.out.println("sending distance vector to " + target);
-        socket.connect(config.physicalAddressOf(target));
-        byte[] data = distanceVector.toBytes();
-        socket.send(new DatagramPacket(data, data.length));
-        socket.disconnect();
-    }
-
-    private void receiveRoutingTable(DatagramPacket packet, DatagramSocket socket) throws IOException {
-        if (distanceVector.merge(new DistanceVector(packet.getData()),
-                config.idOf(new InetSocketAddress(packet.getAddress(), packet.getPort())))) {
-            propagateDistanceVector(socket);
+    private void handleDistanceVector(DistanceVector dv, NetworkDevice sender) throws IOException {
+        if (distanceVector.merge(dv, sender.vMAC())) {
+            propagateDistanceVector();
             System.out.println("distance vector changed:");
             System.out.println(distanceVector);
         } else {
             System.out.println("distance vector unchanged");
         }
     }
+
+    private void propagateDistanceVector() throws IOException {
+        System.out.println("propagating distance vector");
+        for (RouterConfig router : config.routerNeighbors(self)) {
+            sendMap(router);
+        }
+    }
+
+    private void sendMap(RouterConfig target) throws IOException {
+        System.out.println("sending distance vector to " + target);
+        String sharedSubnet = self.subnetConnections().keySet().stream()
+                .filter(target.subnetConnections().keySet()::contains)
+                .findAny()
+                .orElseThrow();
+        var dvp = new DistanceVectorPacket(
+                self.vMAC(),
+                target.vMAC(),
+                sharedSubnet + "." + self.vMAC(),
+                sharedSubnet + "." + target.vMAC(),
+                distanceVector
+                );
+        sendTo(target.address(), dvp);
+    }
+
+    private void sendTo(InetSocketAddress target, Packet payload) throws IOException {
+        var out = new ByteArrayOutputStream();
+        new ObjectOutputStream(out).writeObject(payload);
+        socket.connect(target);
+        socket.send(new DatagramPacket(out.toByteArray(), out.size()));
+        socket.disconnect();
+    }
+
 }

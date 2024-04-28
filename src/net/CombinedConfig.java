@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class CombinedConfig {
 
@@ -34,6 +35,39 @@ public class CombinedConfig {
             e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }
+    }
+
+    public NetworkDevice getDeviceByMAC(String id) {
+        return allDevices().filter(r -> r.vMAC().equals(id)).findAny().orElseThrow();
+    }
+
+    public NetworkDevice getDeviceByAddress(InetSocketAddress address) {
+        return allDevices().filter(r -> r.address().equals(address)).findAny().orElseThrow();
+    }
+
+    public HostConfig getHostByMAC(String id) {
+        return hosts.stream().filter(r -> r.vMAC().equals(id)).findAny().orElseThrow();
+    }
+
+    public SwitchConfig getSwitchByMAC(String id) {
+        return switches.stream().filter(r -> r.vMAC().equals(id)).findAny().orElseThrow();
+    }
+
+    public RouterConfig getRouterByMAC(String id) {
+        return routers.stream().filter(r -> r.vMAC().equals(id)).findAny().orElseThrow();
+    }
+
+    public Collection<RouterConfig> routerNeighbors(String id) { return routerNeighbors(getRouterByMAC(id)); }
+
+    public Collection<RouterConfig> routerNeighbors(RouterConfig self) {
+        return routers.stream()
+                .filter(other -> other.subnetConnections().keySet().stream()
+                        .anyMatch(self.subnetConnections().keySet()::contains)
+                ).toList();
+    }
+
+    private Stream<NetworkDevice> allDevices() {
+        return Stream.concat(hosts.stream(), Stream.concat(switches.stream(), routers.stream()));
     }
 
     private void parseRouter(BufferedReader reader) throws IOException, NullPointerException {
@@ -80,32 +114,14 @@ public class CombinedConfig {
         String[] connections = connectionsLine.split(",");
         connections = Arrays.stream(connections).map(String::trim).toArray(String[]::new);
         hosts.add(new HostConfig(
-                    new InetSocketAddress(address[0],Integer.parseInt(address[1])),
-                    vMAC,
-                    vIP,
-                    gateway,
-                    connections
+                        new InetSocketAddress(address[0],Integer.parseInt(address[1])),
+                        vMAC,
+                        vIP,
+                        gateway,
+                        connections
                 )
         );
     }
+
 }
 
-record HostConfig(
-        InetSocketAddress address,
-        String vMAC,
-        String subnet,
-        String gateway,
-        String[] connections
-) {}
-
-record SwitchConfig(
-        InetSocketAddress address,
-        String vMAC,
-        String[] connections
-) {}
-
-record RouterConfig(
-        InetSocketAddress address,
-        String vMAC,
-        Map<String, String> subnetConnections
-) {}
