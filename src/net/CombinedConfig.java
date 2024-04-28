@@ -28,10 +28,10 @@ public class CombinedConfig {
                     case "switch" -> parseSwitch(reader);
                     case "router" -> parseRouter(reader);
                     default -> throw new RuntimeException();
-                };
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }
     }
