@@ -44,7 +44,7 @@ public class CombinedConfig {
         Map<String, String> connections = Arrays.stream(connectionsLine.split(","))
                 .map(e -> {
                     var a = e.split("=");
-                    return Map.entry(a[0], a[1]);
+                    return Map.entry(a[0].trim(), a[1].trim());
                 })
                 .collect(HashMap::new, (acc, e) -> acc.put(e.getKey(), e.getValue()), HashMap::putAll);
         routers.add(new RouterConfig(
@@ -61,6 +61,7 @@ public class CombinedConfig {
         String connectionsLine = reader.readLine().trim();
         connectionsLine = connectionsLine.substring(1, connectionsLine.length()-1);
         String[] connections = connectionsLine.split(",");
+        connections = Arrays.stream(connections).map(String::trim).toArray(String[]::new);
         switches.add(new SwitchConfig(
                         new InetSocketAddress(address[0],Integer.parseInt(address[1])),
                         vMAC,
@@ -77,6 +78,7 @@ public class CombinedConfig {
         String connectionsLine = reader.readLine().trim();
         connectionsLine = connectionsLine.substring(1, connectionsLine.length()-1);
         String[] connections = connectionsLine.split(",");
+        connections = Arrays.stream(connections).map(String::trim).toArray(String[]::new);
         hosts.add(new HostConfig(
                     new InetSocketAddress(address[0],Integer.parseInt(address[1])),
                     vMAC,
