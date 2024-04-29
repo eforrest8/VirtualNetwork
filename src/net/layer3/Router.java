@@ -41,13 +41,15 @@ public class Router {
                 socket.receive(packet);
                 System.out.println("received packet");
                 try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
-                    switch (ois.readObject()) {
-                        case StringPacket p -> handlePacket(p);
-                        case DistanceVectorPacket dvp -> handleDistanceVector(
+                    if (ois.readObject() instanceof StringPacket p) {
+                        handlePacket(p);
+                    } else if (ois.readObject() instanceof DistanceVectorPacket dvp) {
+                        handleDistanceVector(
                                 dvp.payload(),
                                 config.getDeviceByAddress(new InetSocketAddress(packet.getAddress(), packet.getPort()))
                         );
-                        default -> throw new RuntimeException();
+                    }else{
+                        throw new RuntimeException();
                     }
                 } catch (Exception ignored) {
                     System.out.println("Received invalid packet, discarding...");
