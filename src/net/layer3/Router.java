@@ -41,9 +41,10 @@ public class Router {
                 socket.receive(packet);
                 System.out.println("received packet");
                 try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
-                    if (ois.readObject() instanceof StringPacket p) {
+                    Object rawObject = ois.readObject();
+                    if (rawObject instanceof StringPacket p) {
                         handlePacket(p);
-                    } else if (ois.readObject() instanceof DistanceVectorPacket dvp) {
+                    } else if (rawObject instanceof DistanceVectorPacket dvp) {
                         handleDistanceVector(
                                 dvp.payload(),
                                 config.getDeviceByAddress(new InetSocketAddress(packet.getAddress(), packet.getPort()))
@@ -73,9 +74,8 @@ public class Router {
         } else {
             destination = nextHop;
         }
-        self.subnetConnections().get(targetSubnet);
         StringPacket forwarded = new StringPacket(self.vMAC(), destination, p.srcIP(), p.dstIP(), p.payload());
-        sendTo(config.getDeviceByMAC(nextHop).address(), forwarded);
+        sendTo(config.getDeviceByMAC(self.subnetConnections().get(targetSubnet)).address(), forwarded);
     }
 
     private void initializeDistanceVector() {

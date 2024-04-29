@@ -57,6 +57,7 @@ public class Switch {
     }
 
     private void forward(Packet p, InetSocketAddress target) {
+        System.out.println("Forwarding packet " + p);
         try {
             socket.connect(target);
             var out = new ByteArrayOutputStream();
@@ -72,6 +73,7 @@ public class Switch {
     }
 
     private Runnable flood(Packet p) {
+        System.out.println("Flooding packet " + p);
         return () -> Arrays.stream(self.connections())
                 .filter(Predicate.not(mac -> mac.equals(self.vMAC())))
                 .map(config::getDeviceByMAC)
