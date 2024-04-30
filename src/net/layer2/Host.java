@@ -79,7 +79,9 @@ public class Host {
     private StringPacket createPacket(String dstIP, String payload){
         String srcMAC = self.vMAC();
         String srcIP = self.subnet().concat(".").concat(self.vMAC());
-        String dstMAC = dstIP.split("\\.")[1];
+        String dstMAC = dstIP.split("\\.")[0].equals(self.subnet())
+                ? dstIP.split("\\.")[1]
+                : self.gateway();
         return new StringPacket(srcMAC, dstMAC, srcIP, dstIP, payload);
     }
 

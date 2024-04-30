@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 public class Router {
 
@@ -52,7 +53,8 @@ public class Router {
                     }else{
                         throw new RuntimeException();
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    e.printStackTrace();
                     System.out.println("Received invalid packet, discarding...");
                 }
             }
@@ -74,9 +76,16 @@ public class Router {
             destination = finalDestination;
         } else {
             destination = nextHop;
+            targetSubnet = self.subnetConnections().entrySet().stream()
+                    .filter(e -> e.getValue().equals(destination))
+                    .map(Map.Entry::getKey)
+                    .findAny().orElse(targetSubnet);
         }
         StringPacket forwarded = new StringPacket(self.vMAC(), destination, p.srcIP(), p.dstIP(), p.payload());
-        sendTo(config.getDeviceByMAC(self.subnetConnections().get(targetSubnet)).address(), forwarded);
+        sendTo(
+                config.getDeviceByMAC(
+                        self.subnetConnections().get(targetSubnet)
+                ).address(), forwarded);
     }
 
     private void initializeDistanceVector() {
