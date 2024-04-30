@@ -1,6 +1,9 @@
 package net.layer2;
 
-import net.*;
+import net.util.CombinedConfig;
+import net.util.HostConfig;
+import net.util.Packet;
+import net.util.StringPacket;
 
 import java.io.*;
 import java.net.DatagramPacket;

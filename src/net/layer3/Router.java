@@ -1,6 +1,6 @@
 package net.layer3;
 
-import net.*;
+import net.util.*;
 
 import java.io.*;
 import java.net.DatagramPacket;

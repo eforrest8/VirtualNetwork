@@ -1,4 +1,4 @@
-package net;
+package net.util;
 
 import net.layer3.DistanceVector;
 

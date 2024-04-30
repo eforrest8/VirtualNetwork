@@ -1,9 +1,11 @@
-package net;
+package net.util;
 
 import java.net.InetSocketAddress;
 
-public record SwitchConfig(
+public record HostConfig(
         InetSocketAddress address,
         String vMAC,
+        String subnet,
+        String gateway,
         String[] connections
 ) implements NetworkDevice {}

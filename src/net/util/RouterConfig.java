@@ -1,11 +1,10 @@
-package net;
+package net.util;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
-public record HostConfig(
+public record RouterConfig(
         InetSocketAddress address,
         String vMAC,
-        String subnet,
-        String gateway,
-        String[] connections
+        Map<String, String> subnetConnections
 ) implements NetworkDevice {}

@@ -1,4 +1,4 @@
-package net;
+package net.util;
 
 public record StringPacket(
         String srcMAC,

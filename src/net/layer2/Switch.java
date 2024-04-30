@@ -1,16 +1,17 @@
 package net.layer2;
 
-import net.*;
+import net.util.CombinedConfig;
+import net.util.NetworkDevice;
+import net.util.Packet;
+import net.util.SwitchConfig;
 
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Switch {
