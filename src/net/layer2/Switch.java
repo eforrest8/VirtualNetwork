@@ -75,7 +75,7 @@ public class Switch {
     private Runnable flood(Packet p) {
         System.out.println("Flooding packet " + p);
         return () -> Arrays.stream(self.connections())
-                .filter(Predicate.not(mac -> mac.equals(self.vMAC())))
+                .filter(Predicate.not(mac -> mac.equals(p.srcMAC())))
                 .map(config::getDeviceByMAC)
                 .map(NetworkDevice::address)
                 .forEach(target -> forward(p, target));

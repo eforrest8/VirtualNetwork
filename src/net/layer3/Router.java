@@ -66,6 +66,7 @@ public class Router {
     private void handlePacket(StringPacket p) throws IOException {
         System.out.println("Processing packet... " + p);
         String targetSubnet = p.dstIP().split("\\.")[0];
+        if (p.srcIP().split("\\.")[0].equals(targetSubnet)) { return; }
         String finalDestination = p.dstIP().split("\\.")[1];
         var nextHop = distanceVector.distances.get(targetSubnet).nextHop();
         String destination;
