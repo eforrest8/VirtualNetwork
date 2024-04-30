@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 public class Router {
 
@@ -41,9 +42,10 @@ public class Router {
                 socket.receive(packet);
                 System.out.println("received packet");
                 try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
-                    if (ois.readObject() instanceof StringPacket p) {
+                    Object rawObject = ois.readObject();
+                    if (rawObject instanceof StringPacket p) {
                         handlePacket(p);
-                    } else if (ois.readObject() instanceof DistanceVectorPacket dvp) {
+                    } else if (rawObject instanceof DistanceVectorPacket dvp) {
                         handleDistanceVector(
                                 dvp.payload(),
                                 config.getDeviceByAddress(new InetSocketAddress(packet.getAddress(), packet.getPort()))
@@ -51,7 +53,8 @@ public class Router {
                     }else{
                         throw new RuntimeException();
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    e.printStackTrace();
                     System.out.println("Received invalid packet, discarding...");
                 }
             }
@@ -65,6 +68,7 @@ public class Router {
     private void handlePacket(StringPacket p) throws IOException {
         System.out.println("Processing packet... " + p);
         String targetSubnet = p.dstIP().split("\\.")[0];
+        if (p.srcIP().split("\\.")[0].equals(targetSubnet)) { return; }
         String finalDestination = p.dstIP().split("\\.")[1];
         var nextHop = distanceVector.distances.get(targetSubnet).nextHop();
         String destination;
@@ -72,10 +76,16 @@ public class Router {
             destination = finalDestination;
         } else {
             destination = nextHop;
+            targetSubnet = self.subnetConnections().entrySet().stream()
+                    .filter(e -> e.getValue().equals(destination))
+                    .map(Map.Entry::getKey)
+                    .findAny().orElse(targetSubnet);
         }
-        self.subnetConnections().get(targetSubnet);
         StringPacket forwarded = new StringPacket(self.vMAC(), destination, p.srcIP(), p.dstIP(), p.payload());
-        sendTo(config.getDeviceByMAC(nextHop).address(), forwarded);
+        sendTo(
+                config.getDeviceByMAC(
+                        self.subnetConnections().get(targetSubnet)
+                ).address(), forwarded);
     }
 
     private void initializeDistanceVector() {

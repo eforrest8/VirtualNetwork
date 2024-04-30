@@ -44,8 +44,14 @@ public class Switch {
                 try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
                     Object rawObject = ois.readObject();
                     if (rawObject instanceof Packet p) {
-                        switchingTable.put(p.srcMAC(), new InetSocketAddress(packet.getAddress(), packet.getPort()));
-                        Optional.ofNullable(switchingTable.get(p.dstMAC())).ifPresentOrElse(target -> forward(p, target), flood(p));
+                        InetSocketAddress senderAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
+                        switchingTable.put(p.srcMAC(), senderAddress);
+                        InetSocketAddress targetAddress = switchingTable.get(p.dstMAC());
+                        if (targetAddress == null) {
+                            flood(senderAddress, p);
+                        } else {
+                            forward(p, targetAddress);
+                        }
                     }
                 }
             }
@@ -57,6 +63,7 @@ public class Switch {
     }
 
     private void forward(Packet p, InetSocketAddress target) {
+        System.out.println("Forwarding packet " + p + " to " + target);
         try {
             socket.connect(target);
             var out = new ByteArrayOutputStream();
@@ -71,11 +78,13 @@ public class Switch {
         }
     }
 
-    private Runnable flood(Packet p) {
-        return () -> Arrays.stream(self.connections())
-                .filter(Predicate.not(mac -> mac.equals(self.vMAC())))
-                .map(config::getDeviceByMAC)
-                .map(NetworkDevice::address)
-                .forEach(target -> forward(p, target));
+    private void flood(InetSocketAddress sender, Packet p) {
+        System.out.println("Flooding packet " + p);
+        Arrays.stream(self.connections())
+            .filter(Predicate.not(mac -> mac.equals(p.srcMAC())))
+            .map(config::getDeviceByMAC)
+            .map(NetworkDevice::address)
+            .filter(Predicate.not(add -> add.equals(sender)))
+            .forEach(target -> forward(p, target));
     }
 }

@@ -6,10 +6,8 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Scanner;
+import java.net.SocketTimeoutException;
+import java.util.*;
 
 public class Host {
     private final CombinedConfig config;
@@ -37,9 +35,15 @@ public class Host {
     private void listen() {
         try {
             socket = new DatagramSocket(self.address());
+            socket.setSoTimeout(1000);
             while (true) {
                 DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
-                socket.receive(packet);
+                try {
+                    socket.receive(packet);
+                } catch (SocketTimeoutException ignored) {
+                    Thread.sleep(100);
+                    continue;
+                }
                 try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
                     Object rawObject = ois.readObject();
                     if (rawObject instanceof StringPacket p) {
@@ -72,32 +76,40 @@ public class Host {
             socket.disconnect();
         }
     }
-    private StringPacket createPacket(String dstMac, String payload){
-        String srcMac = self.vMAC();
-        String dstIP = String.valueOf(config.getDeviceByMAC(dstMac).address().getAddress());
-        StringPacket newPacket = new StringPacket(srcMac, dstMac, String.valueOf(self.address().getAddress()), dstIP, payload);
-        return newPacket;
+    private StringPacket createPacket(String dstIP, String payload){
+        String srcMAC = self.vMAC();
+        String srcIP = self.subnet().concat(".").concat(self.vMAC());
+        String dstMAC = dstIP.split("\\.")[0].equals(self.subnet())
+                ? dstIP.split("\\.")[1]
+                : self.gateway();
+        return new StringPacket(srcMAC, dstMAC, srcIP, dstIP, payload);
     }
 
     private void userInput(){
         Scanner keyboard = new Scanner(System.in);
 
         while (true) {
-            System.out.println("Would you like to send a message?");
-            String response = keyboard.nextLine();
-            if (response.equals("q")) {
+            System.out.println("Would you like to send a message? (y/n/q)");
+            String response = keyboard.nextLine().toLowerCase(Locale.ROOT);
+            if (response.equals("q") || response.equals("n")) {
                 System.exit(0);
-                break;
             } else if (response.equals("y")) {
                 System.out.println("Type your message below.");
-                String message = keyboard.nextLine();
-                System.out.println("Type the address of the recipient");
-                String receiver = keyboard.nextLine();
-                StringPacket packet = createPacket(receiver, message);
-                forward(packet, config.getDeviceByMAC(receiver).address());
-                response = null;
+                String message = keyboard.nextLine().trim();
+                System.out.println("Type the address of the recipient.");
+                String receiver = keyboard.nextLine().trim();
+                if (validate(receiver)) {
+                    StringPacket packet = createPacket(receiver, message);
+                    forward(packet, config.getDeviceByMAC(self.connections()[0]).address());
+                } else {
+                    System.out.println("Invalid address format. Please use the format SUBNET.MAC");
+                }
             }
         }
+    }
+
+    private boolean validate(String receiver) {
+        return receiver.split("\\.").length == 2;
     }
 }
 
